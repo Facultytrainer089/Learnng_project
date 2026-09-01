@@ -957,7 +957,15 @@ print(x[0])</code></pre>
     </div>
 
     <div class="text-center pb-4">
-        <button class="btn btn-primary btn-lg" type="button">Submit Test</button>
+        <button id="submitTestButton" class="btn btn-primary btn-lg" type="button">Submit Test</button>
+    </div>
+
+    <div id="assessmentResult" class="card shadow-sm mb-5" hidden>
+        <div class="card-body text-center p-4">
+            <h4 id="resultTitle" class="mb-3">Test Result</h4>
+            <div id="resultSummary" class="fs-5 fw-bold mb-3"></div>
+            <p id="resultMessage" class="text-muted mb-0"></p>
+        </div>
     </div>
 </div>
 
@@ -995,10 +1003,56 @@ print(x[0])</code></pre>
 
 <script>
 
+const assessmentAnswers = {
+    'Python Fundamentals': {
+        pythonQ1: 'pythonQ1b',
+        pythonQ2: 'pythonQ2b',
+        pythonQ3: 'pythonQ3c',
+        pythonQ4: 'pythonQ4a',
+        pythonQ5: 'pythonQ5b'
+    },
+    'JavaScript': {
+        jsQ1: 'jsQ1a',
+        jsQ2: 'jsQ2a',
+        jsQ3: 'jsQ3a',
+        jsQ4: 'jsQ4c',
+        jsQ5: 'jsQ5a'
+    },
+    'HTML & CSS': {
+        htmlQ1: 'htmlQ1b',
+        htmlQ2: 'htmlQ2b',
+        htmlQ3: 'htmlQ3a',
+        htmlQ4: 'htmlQ4a',
+        htmlQ5: 'htmlQ5a'
+    },
+    'MySQL Database': {
+        sqlQ1: 'sqlQ1a',
+        sqlQ2: 'sqlQ2a',
+        sqlQ3: 'sqlQ3a',
+        sqlQ4: 'sqlQ4a',
+        sqlQ5: 'sqlQ5a'
+    },
+    'Data Science': {
+        dsQ1: 'dsQ1a',
+        dsQ2: 'dsQ2d',
+        dsQ3: 'dsQ3a',
+        dsQ4: 'dsQ4a',
+        dsQ5: 'dsQ5a'
+    },
+    'Bootstrap': {
+        bsQ1: 'bsQ1a',
+        bsQ2: 'bsQ2a',
+        bsQ3: 'bsQ3a',
+        bsQ4: 'bsQ4a',
+        bsQ5: 'bsQ5a'
+    }
+};
+
 function startAssessment(name) {
     const assessmentQuiz = document.getElementById('assessmentQuiz');
     const assessmentTitle = document.getElementById('assessmentTitle');
     const assessmentSubtitle = document.getElementById('assessmentSubtitle');
+    const resultBox = document.getElementById('assessmentResult');
     const quizPanels = document.querySelectorAll('.module-quiz-panel');
 
     if (!assessmentQuiz || !assessmentTitle || !assessmentSubtitle) {
@@ -1017,9 +1071,60 @@ function startAssessment(name) {
             panel.hidden = !shouldShow;
         });
 
+        if (resultBox) {
+            resultBox.hidden = true;
+            resultBox.querySelector('#resultSummary').textContent = '';
+            resultBox.querySelector('#resultMessage').textContent = '';
+        }
+
         assessmentQuiz.hidden = false;
         assessmentQuiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+}
+
+function submitAssessment() {
+    const activePanel = document.querySelector('.module-quiz-panel:not([hidden])');
+    const resultBox = document.getElementById('assessmentResult');
+    const resultSummary = document.getElementById('resultSummary');
+    const resultMessage = document.getElementById('resultMessage');
+
+    if (!activePanel || !resultBox || !resultSummary || !resultMessage) {
+        alert('Please start an assessment first.');
+        return;
+    }
+
+    const moduleName = activePanel.dataset.module;
+    const expectedAnswers = assessmentAnswers[moduleName];
+    const questionNames = Object.keys(expectedAnswers);
+    let correctCount = 0;
+
+    questionNames.forEach(function(questionName) {
+        const selectedAnswer = document.querySelector('input[name="' + questionName + '"]:checked');
+        const correctAnswerId = expectedAnswers[questionName];
+
+        if (selectedAnswer && selectedAnswer.id === correctAnswerId) {
+            correctCount++;
+        }
+    });
+
+    const totalQuestions = questionNames.length;
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    const scoreText = correctCount + ' / ' + totalQuestions + ' correct';
+    let statusText = 'Needs improvement';
+    let badgeClass = 'text-warning';
+
+    if (percentage >= 80) {
+        statusText = 'Excellent result';
+        badgeClass = 'text-success';
+    } else if (percentage >= 60) {
+        statusText = 'Good result';
+        badgeClass = 'text-primary';
+    }
+
+    resultSummary.innerHTML = '<span class="' + badgeClass + '">' + scoreText + '</span> &nbsp;(' + percentage + '%)';
+    resultMessage.textContent = statusText + ' for the ' + moduleName + ' assessment.';
+    resultBox.hidden = false;
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 
@@ -1126,6 +1231,8 @@ function resetFilters() {
     filterAssessments();
 
 }
+
+document.getElementById('submitTestButton').addEventListener('click', submitAssessment);
 
 </script>
 
