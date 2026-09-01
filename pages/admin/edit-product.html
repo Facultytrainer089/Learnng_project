@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container py-5">
+
+    <div class="card shadow">
+
+        <div class="card-header">
+            <h4>Edit Product</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form onsubmit="updateProduct(event)">
+
+                <div class="mb-3">
+                    <label class="form-label">Product Name</label>
+                    <input type="text"
+                           class="form-control"
+                           value="Water Bottle"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+
+                    <select class="form-select">
+                        <option>Kitchen</option>
+                        <option>Home</option>
+                        <option>Storage</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+
+                    <input type="number"
+                           class="form-control"
+                           value="499"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Stock</label>
+
+                    <input type="number"
+                           class="form-control"
+                           value="25"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+
+                    <textarea class="form-control"
+                              rows="4">Premium quality water bottle.</textarea>
+                </div>
+
+                <button class="btn btn-primary">
+                    Update Product
+                </button>
+
+                <a href="manage-products.html"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+function updateProduct(event) {
+    event.preventDefault();
+
+    alert("Product updated successfully!");
+
+    window.location.href = "manage-products.html";
+}
+</script>
+
+</body>
+</html>
