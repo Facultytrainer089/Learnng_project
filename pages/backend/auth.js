@@ -1,6 +1,3 @@
-```javascript
-// backend/routes/auth.js
-
 const express = require("express");
 const bcrypt = require("bcrypt");
 
@@ -8,29 +5,19 @@ const pool = require("../database");
 
 const router = express.Router();
 
-
 // ==========================================
-// ADMIN / USER LOGIN
+// USER LOGIN
 // ==========================================
 
 router.post("/login", async (req, res) => {
 
     try {
 
-        const { email, password } = req.body;
+        const {
+            email,
+            password
+        } = req.body;
 
-        // Check required fields
-        if (!email || !password) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Email and password are required"
-            });
-
-        }
-
-
-        // Find user in PostgreSQL
         const result = await pool.query(
             `SELECT id, name, email, password, role
              FROM users
@@ -167,7 +154,7 @@ router.post("/register", async (req, res) => {
         // Create user
         const result = await pool.query(
 
-            INSERT INTO users
+            `INSERT INTO users
              (name, email, password, role)
              VALUES ($1, $2, $3, $4)
              RETURNING id, name, email, role`,
