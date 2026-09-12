@@ -117,6 +117,12 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" href="../candidate-login.html">
+                        Candidate Login
+                    </a>
+                </li>
+
             </ul>
 
         </div>
@@ -185,19 +191,15 @@
                     </option>
 
                     <option value="programming">
-                        Programming
+                        Python Web Developer
                     </option>
 
                     <option value="database">
-                        Database
+                        AWS
                     </option>
 
                     <option value="web">
-                        Web Development
-                    </option>
-
-                    <option value="data">
-                        Data Science
+                        React
                     </option>
 
                 </select>
@@ -256,6 +258,11 @@
 
     <div class="row g-4" id="assessmentContainer">
 
+        <div class="col-12" id="uploadedAssessmentsSection" hidden>
+            <h2 class="mb-3">Available Test Papers</h2>
+            <div class="row g-4" id="uploadedAssessmentContainer"></div>
+        </div>
+
 
         <!-- Python -->
 
@@ -272,12 +279,12 @@
                     </div>
 
                     <h4>
-                        Python Fundamentals
+                        Python Web Developer
                     </h4>
 
                     <p class="text-muted">
-                        Test your knowledge of Python basics,
-                        variables, loops, functions and data types.
+                        Assess your knowledge of Python, backend logic,
+                        APIs, and web development fundamentals.
                     </p>
 
                     <span class="badge bg-success badge-custom">
@@ -285,7 +292,7 @@
                     </span>
 
                     <span class="badge bg-primary badge-custom">
-                        Programming
+                        Python Web Developer
                     </span>
 
                     <hr>
@@ -319,7 +326,7 @@
         <!-- JavaScript -->
 
         <div class="col-md-6 col-lg-4 assessment-item"
-             data-category="programming"
+             data-category="web"
              data-difficulty="Intermediate">
 
             <div class="card assessment-card shadow-sm">
@@ -331,12 +338,12 @@
                     </div>
 
                     <h4>
-                        JavaScript
+                        React Front-End Developer
                     </h4>
 
                     <p class="text-muted">
-                        Test JavaScript concepts including
-                        functions, arrays, objects and DOM.
+                        Test React concepts including components,
+                        state, props, and user experience design.
                     </p>
 
                     <span class="badge bg-warning text-dark">
@@ -344,7 +351,7 @@
                     </span>
 
                     <span class="badge bg-primary">
-                        Programming
+                        React
                     </span>
 
                     <hr>
@@ -390,12 +397,12 @@
                     </div>
 
                     <h4>
-                        HTML & CSS
+                        React UI Essentials
                     </h4>
 
                     <p class="text-muted">
-                        Evaluate your knowledge of HTML elements,
-                        CSS styling, layouts and responsive design.
+                        Evaluate your knowledge of React UI patterns,
+                        components, styling, and responsive design.
                     </p>
 
                     <span class="badge bg-success">
@@ -403,7 +410,7 @@
                     </span>
 
                     <span class="badge bg-info text-dark">
-                        Web Development
+                        React
                     </span>
 
                     <hr>
@@ -445,16 +452,16 @@
                 <div class="card-body p-4">
 
                     <div class="assessment-icon mb-3">
-                        🗄️
+                        ☁️
                     </div>
 
                     <h4>
-                        MySQL Database
+                        AWS Cloud Fundamentals
                     </h4>
 
                     <p class="text-muted">
-                        Test SQL queries, database concepts,
-                        joins, constraints and relationships.
+                        Test cloud concepts, deployment basics,
+                        networking, and AWS service fundamentals.
                     </p>
 
                     <span class="badge bg-warning text-dark">
@@ -462,7 +469,7 @@
                     </span>
 
                     <span class="badge bg-dark">
-                        Database
+                        AWS
                     </span>
 
                     <hr>
@@ -1003,6 +1010,163 @@ print(x[0])</code></pre>
 
 <script>
 
+const API_BASE_URL = 'http://localhost:5000';
+
+const uploadedMcqQuestions = {
+    Test3: [
+        { question: 'Which condition confirms that a number is prime?', options: ['It has exactly two positive divisors', 'It is divisible by 2', 'It is greater than 100', 'It ends with 1'], answer: 0 },
+        { question: 'Which two values are commonly used to start a Fibonacci series?', options: ['0 and 1', '1 and 1 only', '2 and 3', '0 and 2'], answer: 0 },
+        { question: 'How is an Armstrong number commonly checked?', options: ['Sum of powered digits equals the original number', 'Number is divisible by 2', 'Number reads the same backward', 'Digits are sorted'], answer: 0 },
+        { question: 'Which operator extracts the last digit while reversing a number?', options: ['%', '//', '**', '&'], answer: 0 },
+        { question: 'What confirms that a number is a palindrome?', options: ['It equals its reversed value', 'It is always prime', 'It has an even number of digits', 'It is divisible by 10'], answer: 0 },
+        { question: 'What is the value of 0! (zero factorial)?', options: ['0', '1', '10', 'Undefined'], answer: 1 },
+        { question: 'Which loop structure is useful for checking prime numbers in a range?', options: ['Nested loops', 'One unconditional break', 'Only a switch statement', 'No loop'], answer: 0 },
+        { question: 'Which algorithm repeatedly uses remainder to find the GCD?', options: ['Euclidean algorithm', 'Binary search', 'Bubble sort', 'Fibonacci algorithm'], answer: 0 },
+        { question: 'In the number pattern, what does the inner loop control?', options: ['How many numbers appear on each row', 'The program title', 'The user password', 'The final output color'], answer: 0 },
+        { question: 'In a number guessing game, what should happen after a guess is too low?', options: ['Tell the user to try a higher number', 'End the program as correct', 'Reverse the guess', 'Calculate factorial'], answer: 0 }
+    ]
+};
+
+async function loadUploadedAssessments() {
+    const section = document.getElementById('uploadedAssessmentsSection');
+    const container = document.getElementById('uploadedAssessmentContainer');
+
+    try {
+        const response = await fetch(API_BASE_URL + '/api/test-papers');
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Unable to load test papers.');
+        }
+
+        if (!result.testPapers.length) {
+            return;
+        }
+
+        section.hidden = false;
+        container.innerHTML = result.testPapers.map(function(paper) {
+            const category = paper.category || 'Training';
+            const difficulty = paper.difficulty || 'General';
+            return `
+                <div class="col-md-6 col-lg-4 assessment-item"
+                     data-category="${category.toLowerCase()}"
+                     data-difficulty="${difficulty}">
+                    <div class="card assessment-card shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="assessment-icon mb-3">📄</div>
+                            <h4>${paper.name}</h4>
+                            <p class="text-muted">${paper.description || 'Complete this uploaded test paper assessment.'}</p>
+                            <span class="badge bg-primary badge-custom">${category}</span>
+                            <span class="badge bg-secondary badge-custom">${difficulty}</span>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span>📝 ${paper.questions} Questions</span>
+                                <span>⏱ ${paper.duration} Minutes</span>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-4"
+                                    onclick="startUploadedAssessment('${paper.name.replace(/'/g, "\\'")}', '${API_BASE_URL}${paper.pdfUrl}')">
+                                Start Exam
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        container.innerHTML = '<div class="col-12"><p class="text-danger">Unable to load uploaded assessments. Please try again later.</p></div>';
+    }
+}
+
+function startUploadedAssessment(name, pdfUrl) {
+    const assessmentQuiz = document.getElementById('assessmentQuiz');
+    const assessmentTitle = document.getElementById('assessmentTitle');
+    const assessmentSubtitle = document.getElementById('assessmentSubtitle');
+    const quizPanels = document.querySelectorAll('.module-quiz-panel');
+
+    if (!confirm('Start the ' + name + ' exam?')) {
+        return;
+    }
+
+    assessmentTitle.textContent = name + ' Exam';
+    assessmentSubtitle.textContent = 'Read the questions in the uploaded PDF and complete the exam.';
+    quizPanels.forEach(function(panel) {
+        panel.hidden = true;
+    });
+
+    let examPanel = document.getElementById('uploadedExamPanel');
+    if (!examPanel) {
+        examPanel = document.createElement('div');
+        examPanel.id = 'uploadedExamPanel';
+        examPanel.className = 'card shadow-sm mb-4';
+        assessmentQuiz.appendChild(examPanel);
+    }
+
+    const questions = uploadedMcqQuestions[name];
+    if (questions) {
+        examPanel.innerHTML = '<div class="card-body p-4">' +
+            '<div class="mb-4"><label class="form-label fw-bold" for="candidateName">Candidate Name</label><input id="candidateName" class="form-control" type="text" placeholder="Enter your full name" required></div>' +
+            questions.map(function(item, index) {
+                return '<div class="mb-4"><h5>' + (index + 1) + '. ' + item.question + '</h5>' +
+                    item.options.map(function(option, optionIndex) {
+                        return '<div class="form-check mt-2"><input class="form-check-input" type="radio" name="uploadedQ' + index + '" value="' + optionIndex + '"><label class="form-check-label">' + option + '</label></div>';
+                    }).join('') + '</div>';
+            }).join('') +
+            '<button class="btn btn-success" type="button" onclick="submitUploadedMcq(\'' + name.replace(/'/g, "\\'") + '\')">Submit Exam</button>' +
+            '<a class="btn btn-outline-secondary ms-2" href="' + pdfUrl + '" target="_blank" rel="noopener noreferrer">Open Original PDF</a>' +
+            '<div id="uploadedMcqResult" class="mt-4" hidden></div></div>';
+    } else {
+        examPanel.innerHTML = '<div class="card-body p-2"><iframe title="Test paper PDF" src="' + pdfUrl + '" style="width:100%; height:75vh; border:0;"></iframe></div>';
+    }
+
+    assessmentQuiz.hidden = false;
+    assessmentQuiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function submitUploadedMcq(name) {
+    const questions = uploadedMcqQuestions[name];
+    const candidateNameInput = document.getElementById('candidateName');
+    const candidateName = candidateNameInput ? candidateNameInput.value.trim() : '';
+
+    if (!candidateName) {
+        alert('Please enter your name before submitting the exam.');
+        return;
+    }
+
+    let score = 0;
+
+    questions.forEach(function(item, index) {
+        const selected = document.querySelector('input[name="uploadedQ' + index + '"]:checked');
+        if (selected && Number(selected.value) === item.answer) {
+            score++;
+        }
+    });
+
+    const result = document.getElementById('uploadedMcqResult');
+    result.textContent = 'Your score: ' + score + ' / ' + questions.length + ' (' + Math.round(score / questions.length * 100) + '%)';
+    result.className = 'alert ' + (score >= questions.length * 0.6 ? 'alert-success' : 'alert-warning') + ' mt-4';
+    result.hidden = false;
+
+    try {
+        const response = await fetch(API_BASE_URL + '/api/candidate-results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                candidateName,
+                testPaperName: name,
+                marks: score,
+                totalMarks: questions.length
+            })
+        });
+        const savedResult = await response.json();
+        if (!response.ok || !savedResult.success) {
+            throw new Error(savedResult.message || 'Unable to save your result.');
+        }
+        result.textContent += ' Result saved successfully.';
+    } catch (error) {
+        result.textContent += ' Result could not be saved.';
+    }
+}
+
 const assessmentAnswers = {
     'Python Fundamentals': {
         pythonQ1: 'pythonQ1b',
@@ -1233,6 +1397,7 @@ function resetFilters() {
 }
 
 document.getElementById('submitTestButton').addEventListener('click', submitAssessment);
+loadUploadedAssessments();
 
 </script>
 

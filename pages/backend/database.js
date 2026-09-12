@@ -1,17 +1,22 @@
 
-// backend/database.js
-
 const { Pool } = require("pg");
 const config = require("./config");
 
-// Create PostgreSQL connection pool
-const pool = new Pool({
-    host: config.database.host,
-    port: config.database.port,
-    database: config.database.database,
-    user: config.database.user,
-    password: config.database.password
-});
+const pool = new Pool(
+    config.databaseUrl
+        ? {
+              connectionString: config.databaseUrl,
+              ssl: { rejectUnauthorized: false }
+          }
+        : {
+              host: config.database.host,
+              port: config.database.port,
+              database: config.database.database,
+              user: config.database.user,
+              password: config.database.password,
+              ssl: config.database.ssl ? { rejectUnauthorized: false } : false
+          }
+);
 
 // Test database connection
 pool.connect()

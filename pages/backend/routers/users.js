@@ -1,4 +1,3 @@
-```javascript
 // backend/routes/users.js
 
 const express = require("express");

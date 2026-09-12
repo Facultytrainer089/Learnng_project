@@ -1,4 +1,3 @@
-```javascript
 // backend/routes/products.js
 
 const express = require("express");
@@ -16,9 +15,10 @@ router.get("/", async (req, res) => {
     try {
 
         const result = await pool.query(
-            `SELECT *
-             FROM products
-             ORDER BY id DESC`
+            `SELECT p.*, c.name AS category_name
+             FROM products p
+             LEFT JOIN categories c ON c.id = p.category_id
+             ORDER BY p.id DESC`
         );
 
         res.json({
@@ -38,8 +38,7 @@ router.get("/", async (req, res) => {
     }
 
 });
-
-
+    module.exports = router;
 // ==========================================
 // GET PRODUCT BY ID
 // ==========================================

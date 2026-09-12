@@ -27,41 +27,67 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Python Fundamentals</td>
-                    <td>Programming</td>
-                    <td>Beginner</td>
-                    <td>20</td>
-                    <td>30 min</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deletePaper()">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>JavaScript Essentials</td>
-                    <td>Programming</td>
-                    <td>Intermediate</td>
-                    <td>25</td>
-                    <td>40 min</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deletePaper()">Delete</button>
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-function deletePaper() {
-    if (confirm('Are you sure you want to delete this test paper?')) {
-        alert('Test paper deleted successfully.');
+async function renderTestPapers() {
+    const tbody = document.querySelector('tbody');
+    try {
+        const response = await fetch('http://localhost:5000/api/test-papers');
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Failed to load test papers.');
+        }
+        const papers = result.testPapers;
+
+        if (!papers.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No test papers found.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = papers.map((paper) => `
+        <tr>
+            <td>${paper.id}</td>
+            <td>${paper.name}</td>
+            <td>${paper.category}</td>
+            <td>${paper.difficulty}</td>
+            <td>${paper.questions}</td>
+            <td>${paper.duration} min</td>
+            <td>
+                <a href="http://localhost:5000${paper.pdfUrl}" class="btn btn-sm btn-info text-white me-2" target="_blank" rel="noopener noreferrer">Open PDF</a>
+                <button class="btn btn-sm btn-warning">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deletePaper(${paper.id})">Delete</button>
+            </td>
+        </tr>
+        `).join('');
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${error.message}</td></tr>`;
     }
 }
+
+async function deletePaper(id) {
+    if (!confirm('Are you sure you want to delete this test paper?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/test-papers/${id}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Failed to delete test paper.');
+        }
+
+        alert('Test paper deleted successfully.');
+        renderTestPapers();
+    } catch (error) {
+        alert(error.message || 'Unable to connect to the backend.');
+    }
+}
+
+renderTestPapers();
 </script>
 </body>
 </html>

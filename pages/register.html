@@ -15,24 +15,25 @@
         <div class="card auth-card">
             <div class="card-body p-5">
                 <h2 class="text-center fw-bold mb-4">Create Account</h2>
-                <form>
+                <div id="registerMessage" class="alert d-none" role="alert"></div>
+                <form id="registerForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">First Name</label>
-                            <input type="text" class="form-control" placeholder="First name" required>
+                            <label class="form-label" for="firstName">First Name</label>
+                            <input id="firstName" type="text" class="form-control" placeholder="First name" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" class="form-control" placeholder="Last name" required>
+                            <label class="form-label" for="lastName">Last Name</label>
+                            <input id="lastName" type="text" class="form-control" placeholder="Last name" required>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="Enter your email" required>
+                        <label class="form-label" for="email">Email</label>
+                        <input id="email" type="email" class="form-control" placeholder="Enter your email" required>
                     </div>
                     <div class="mt-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" placeholder="Create password" required>
+                        <label class="form-label" for="password">Password</label>
+                        <input id="password" type="password" class="form-control" placeholder="Create password" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mt-4">Register</button>
                 </form>
@@ -47,4 +48,30 @@
         </div>
     </div>
 </body>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const message = document.getElementById('registerMessage');
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: firstName + ' ' + lastName, email, password })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Registration failed.');
+        }
+        window.location.href = 'candidate-login.html?registered=1';
+    } catch (error) {
+        message.textContent = error.message || 'Unable to connect to the backend.';
+        message.className = 'alert alert-danger';
+    }
+});
+</script>
 </html>

@@ -1,4 +1,3 @@
-```javascript
 // backend/routes/orders.js
 
 const express = require("express");

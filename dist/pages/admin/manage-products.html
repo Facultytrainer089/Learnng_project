@@ -35,44 +35,10 @@
                 </tr>
             </thead>
 
-            <tbody>
-
+            <tbody id="productTableBody">
                 <tr>
-                    <td>1</td>
-                    <td>Water Bottle</td>
-                    <td>Kitchen</td>
-                    <td>₹499</td>
-                    <td>25</td>
-                    <td>
-                        <a href="edit-product.html" class="btn btn-sm btn-warning">
-                            Edit
-                        </a>
-
-                        <button class="btn btn-sm btn-danger"
-                                onclick="deleteProduct()">
-                            Delete
-                        </button>
-                    </td>
+                    <td colspan="6" class="text-center text-muted">Loading products...</td>
                 </tr>
-
-                <tr>
-                    <td>2</td>
-                    <td>Lunch Box</td>
-                    <td>Kitchen</td>
-                    <td>₹699</td>
-                    <td>40</td>
-                    <td>
-                        <a href="edit-product.html" class="btn btn-sm btn-warning">
-                            Edit
-                        </a>
-
-                        <button class="btn btn-sm btn-danger"
-                                onclick="deleteProduct()">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-
             </tbody>
 
         </table>
@@ -82,11 +48,56 @@
 </div>
 
 <script>
+async function loadProducts() {
+    const tbody = document.getElementById('productTableBody');
+
+    try {
+        const response = await fetch('http://localhost:5000/api/products');
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Failed to load products');
+        }
+
+        const products = data.products || [];
+
+        if (products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products found.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = products.map(product => `
+            <tr>
+                <td>${product.id}</td>
+                <td>${product.name}</td>
+                <td>${product.category_name || product.category_id || 'N/A'}</td>
+                <td>₹${Number(product.price).toFixed(2)}</td>
+                <td>${product.stock}</td>
+                <td>
+                    <a href="edit-product.html" class="btn btn-sm btn-warning">
+                        Edit
+                    </a>
+
+                    <button class="btn btn-sm btn-danger"
+                            onclick="deleteProduct()">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Unable to load products.</td></tr>';
+        console.error(error);
+    }
+}
+
 function deleteProduct() {
     if (confirm("Are you sure you want to delete this product?")) {
         alert("Product deleted successfully.");
     }
 }
+
+loadProducts();
 </script>
 
 </body>
